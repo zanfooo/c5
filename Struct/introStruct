@@ -1,0 +1,57 @@
+/******************************************************************************
+
+Welcome to GDB Online.
+  GDB online is an online compiler and debugger tool for C, C++, Python, PHP, Ruby, 
+  C#, OCaml, VB, Perl, Swift, Prolog, Javascript, Pascal, COBOL, HTML, CSS, JS
+  Code, Compile, Run and Debug online from anywhere in world.
+
+*******************************************************************************/
+#include <stdio.h>
+#include <string.h>
+
+// Definizione della struttira per rappresentare una persona
+
+struct Persona{
+    char nome[50]; // Un campo per il nome (stringa)
+    char cognome[50];
+    int eta; // Un campo per l'età (intero)
+    float altezza; // Un campo per l altezza (virgola mobile)
+}
+
+typedef struct{
+    char nome[50]; // Un campo per il nome (stringa)
+    char cognome[50];
+    int eta; // Un campo per l'età (intero)
+    float altezza; // Un campo per l altezza (virgola mobile)
+} Persona;
+
+void StampaDettagliPersona(struct Persona p){
+    printf("Nome: %s \n", p.nome);
+    printf("Cognome: %s \n", p.cognome);
+    printf("Eta: %d \n", p.eta);
+    printf("Altezza: %2.f \n", p.altezza);
+}
+
+void AggiornaEta(Persona *p, int nuovaEta){
+    (*p).eta = nuovaEta;
+}
+
+int main()
+{   
+    Persona persona1; // Se dichiarato nel modo struct
+    struct Persona persona2; // Se dichiarato nel modo typedef
+    
+    Persona persona3{"Luca", "Verdi", 40, 1.80};
+    AggiornaEta(persona3, 30);
+    printf("Nuova eta: %d", persona3.eta);
+    
+    StampaDettagliPersona(persona1); // Passaggio della struttura alla funzione
+    
+    struct Persona persone[10]; // Dichiarazione di un array di strutture
+    persone[0] = persona3;
+
+    
+    return 0;
+}
+
+ 
