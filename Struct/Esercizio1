@@ -3,7 +3,6 @@
 
 #define MAX_AUTO 100
 
-// Definizione della struttura
 struct Auto {
     char modello[50];
     char marca[50];
@@ -13,8 +12,8 @@ struct Auto {
     char targa[20];
 };
 
-// Funzione per stampare i dettagli di un'auto
-void stampaDettagliAuto(struct Auto a) {
+// Funzione per stampare un'auto
+void stampaAuto(struct Auto a) {
     printf("\n--- DETTAGLI AUTO ---\n");
     printf("Modello: %s\n", a.modello);
     printf("Marca: %s\n", a.marca);
@@ -24,31 +23,25 @@ void stampaDettagliAuto(struct Auto a) {
     printf("Targa: %s\n", a.targa);
 }
 
-// Funzione per scambiare due auto (usata per ordinamento)
-void scambia(struct Auto *a, struct Auto *b) {
-    struct Auto temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
 int main() {
     struct Auto autosalone[MAX_AUTO];
-    int n;
+    int n, i, j;
 
     printf("Quante auto vuoi inserire? ");
     scanf("%d", &n);
-    
 
-    // Inserimento dati
-    for (int i = 0; i < n; i++) {
-        printf("\nInserisci i dati per l'auto %d:\n", i + 1);
+    // Inserimento auto
+    for (i = 0; i < n; i++) {
+        printf("\n--- Inserisci i dati dell'auto %d ---\n", i + 1);
+
         printf("Modello: ");
+        fflush(stdin);
         fgets(autosalone[i].modello, 50, stdin);
-        autosalone[i].modello[strcspn(autosalone[i].modello, "\n")] = 0;
+        autosalone[i].modello[strlen(autosalone[i].modello) - 1] = '\0';
 
         printf("Marca: ");
         fgets(autosalone[i].marca, 50, stdin);
-        autosalone[i].marca[strcspn(autosalone[i].marca, "\n")] = 0;
+        autosalone[i].marca[strlen(autosalone[i].marca) - 1] = '\0';
 
         printf("Cilindrata: ");
         scanf("%d", &autosalone[i].cilindrata);
@@ -60,8 +53,9 @@ int main() {
         scanf("%d", &autosalone[i].anno_immatricolazione);
 
         printf("Targa: ");
+        fflush(stdin);
         fgets(autosalone[i].targa, 20, stdin);
-        autosalone[i].targa[strcspn(autosalone[i].targa, "\n")] = 0;
+        autosalone[i].targa[strlen(autosalone[i].targa) - 1] = '\0';
     }
 
     // 1) Prezzo massimo e minimo
@@ -69,7 +63,7 @@ int main() {
     float prezzoMin = autosalone[0].prezzo;
     int idxMax = 0, idxMin = 0;
 
-    for (int i = 1; i < n; i++) {
+    for (i = 1; i < n; i++) {
         if (autosalone[i].prezzo > prezzoMax) {
             prezzoMax = autosalone[i].prezzo;
             idxMax = i;
@@ -83,68 +77,71 @@ int main() {
     printf("\nAuto con prezzo più alto: %s (%.2f €)\n", autosalone[idxMax].modello, prezzoMax);
     printf("Auto con prezzo più basso: %s (%.2f €)\n", autosalone[idxMin].modello, prezzoMin);
 
-    // 2) Ordinamento per anno immatricolazione (crescente)
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = i + 1; j < n; j++) {
+    // 2) Ordinamento per anno immatricolazione
+    struct Auto temp;
+    for (i = 0; i < n - 1; i++) {
+        for (j = i + 1; j < n; j++) {
             if (autosalone[i].anno_immatricolazione > autosalone[j].anno_immatricolazione) {
-                scambia(&autosalone[i], &autosalone[j]);
+                temp = autosalone[i];
+                autosalone[i] = autosalone[j];
+                autosalone[j] = temp;
             }
         }
     }
 
-    printf("\n--- AUTO ORDINATE PER ANNO DI IMMATRICOLAZIONE ---\n");
-    for (int i = 0; i < n; i++) {
+    printf("\n--- AUTO ORDINATE PER ANNO ---\n");
+    for (i = 0; i < n; i++) {
         printf("%d - %s (%d)\n", i + 1, autosalone[i].modello, autosalone[i].anno_immatricolazione);
     }
 
-    // 3) Visualizzare auto da un prezzo minimo scelto dall’utente
+    // 3) Visualizzare auto con prezzo maggiore di uno scelto
     float prezzoScelto;
     printf("\nInserisci un prezzo minimo: ");
     scanf("%f", &prezzoScelto);
 
     printf("\nAuto con prezzo >= %.2f:\n", prezzoScelto);
-    for (int i = 0; i < n; i++) {
-        if (autosalone[i].prezzo >= prezzoScelto)
-            printf("%s (%.2f €)\n", autosalone[i].modello, autosalone[i].prezzo);
+    for (i = 0; i < n; i++) {
+        if (autosalone[i].prezzo >= prezzoScelto) {
+            printf("%s - %.2f\n", autosalone[i].modello, autosalone[i].prezzo);
+        }
     }
 
-    // 4) Ricerca auto per targa
+    // 4) Ricerca per targa
     char targaCercata[20];
-    getchar(); // pulisce buffer
     printf("\nInserisci la targa da cercare: ");
+    fflush(stdin);
     fgets(targaCercata, 20, stdin);
-    targaCercata[strcspn(targaCercata, "\n")] = 0;
+    targaCercata[strlen(targaCercata) - 1] = '\0';
 
     int trovata = 0;
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         if (strcmp(autosalone[i].targa, targaCercata) == 0) {
-            printf("\nAuto trovata!\n");
-            stampaDettagliAuto(autosalone[i]);
+            printf("\nAuto trovata:\n");
+            stampaAuto(autosalone[i]);
             trovata = 1;
-            break;
         }
     }
     if (!trovata)
-        printf("Nessuna auto trovata con targa %s.\n", targaCercata);
+        printf("Nessuna auto trovata con targa %s\n", targaCercata);
 
     // 5) Media dei prezzi
     float somma = 0;
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         somma += autosalone[i].prezzo;
     }
     float media = somma / n;
-    printf("\nPrezzo medio delle auto: %.2f €\n", media);
+    printf("\nPrezzo medio delle auto: %.2f\n", media);
 
-    // 6) Auto con anno di immatricolazione scelto dall’utente
+    // 6) Auto con anno scelto
     int annoScelto;
-    printf("\nInserisci un anno di immatricolazione: ");
+    printf("\nInserisci un anno da cercare: ");
     scanf("%d", &annoScelto);
 
     printf("\nAuto immatricolate nel %d:\n", annoScelto);
     int trovateAnno = 0;
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         if (autosalone[i].anno_immatricolazione == annoScelto) {
-            stampaDettagliAuto(autosalone[i]);
+            stampaAuto(autosalone[i]);
             trovateAnno = 1;
         }
     }
