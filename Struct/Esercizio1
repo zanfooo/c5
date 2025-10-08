@@ -1,46 +1,156 @@
-
 #include <stdio.h>
 #include <string.h>
 
-// Definizione della struttira per rappresentare una persona
+#define MAX_AUTO 100
 
-struct Auto{
-    char ModelloAuto[50]; // Un campo per il ModelloAuto (stringa)
-    char Marca[50]; // Un campo per la marca (stringa)
-    int cilindrata; // Un campo per la cilindrata (intero)
-    int prezzo; // Un campo per il prezzo (intero)
-    int annoImmatricolazione; // Un campo per l'annoImmatricolazione (intero)
-    char targa[50]; // Un campo per la targa (stringa)
+// Definizione della struttura
+struct Auto {
+    char modello[50];
+    char marca[50];
+    int cilindrata;
+    float prezzo;
+    int anno_immatricolazione;
+    char targa[20];
+};
 
+// Funzione per stampare i dettagli di un'auto
+void stampaDettagliAuto(struct Auto a) {
+    printf("\n--- DETTAGLI AUTO ---\n");
+    printf("Modello: %s\n", a.modello);
+    printf("Marca: %s\n", a.marca);
+    printf("Cilindrata: %d\n", a.cilindrata);
+    printf("Prezzo: %.2f\n", a.prezzo);
+    printf("Anno immatricolazione: %d\n", a.anno_immatricolazione);
+    printf("Targa: %s\n", a.targa);
 }
 
-void StampaDettagliAuto(struct Auto a){
-    printf("ModelloAuto: %s \n", a.modelloAuto);
-    printf("Marca,: %s \n", a.marca);
-    printf("Cilindrata: %d \n", a.cilindrata);
-    printf("Prezzo: %d \n", a.prezzo);
+// Funzione per scambiare due auto (usata per ordinamento)
+void scambia(struct Auto *a, struct Auto *b) {
+    struct Auto temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-void AggiornaCilindrata(Auto *a, int nuovaCilindrata){
-    (*a).cilindrata = nuovaCilindrata;
-}
+int main() {
+    struct Auto autosalone[MAX_AUTO];
+    int n;
 
-int main()
-{   
-    Auto auto1; // Se dichiarato nel modo struct
-    struct Auto auto2; // Se dichiarato nel modo typedef
-    
-    Auto auto3{"Cayman", "Porsche", 400, 95000};
-    AggiornaCilindrata(auto3, 30);
-    printf("Nuova cilindrata: %d", auto3.cilindrata);
-    
-    StampaDettagliAuto(auto1); // Passaggio della struttura alla funzione
-    
-    struct Auto concessionaria[10]; // Dichiarazione di un array di strutture
-    concessionaria[0] = auto1;
+    printf("Quante auto vuoi inserire? ");
+    scanf("%d", &n);
+    getchar(); // per consumare il newline dopo scanf
 
-    
+    // Inserimento dati
+    for (int i = 0; i < n; i++) {
+        printf("\nInserisci i dati per l'auto %d:\n", i + 1);
+        printf("Modello: ");
+        fgets(autosalone[i].modello, 50, stdin);
+        autosalone[i].modello[strcspn(autosalone[i].modello, "\n")] = 0;
+
+        printf("Marca: ");
+        fgets(autosalone[i].marca, 50, stdin);
+        autosalone[i].marca[strcspn(autosalone[i].marca, "\n")] = 0;
+
+        printf("Cilindrata: ");
+        scanf("%d", &autosalone[i].cilindrata);
+
+        printf("Prezzo: ");
+        scanf("%f", &autosalone[i].prezzo);
+
+        printf("Anno immatricolazione: ");
+        scanf("%d", &autosalone[i].anno_immatricolazione);
+
+        getchar(); // pulisce il buffer
+        printf("Targa: ");
+        fgets(autosalone[i].targa, 20, stdin);
+        autosalone[i].targa[strcspn(autosalone[i].targa, "\n")] = 0;
+    }
+
+    // 1) Prezzo massimo e minimo
+    float prezzoMax = autosalone[0].prezzo;
+    float prezzoMin = autosalone[0].prezzo;
+    int idxMax = 0, idxMin = 0;
+
+    for (int i = 1; i < n; i++) {
+        if (autosalone[i].prezzo > prezzoMax) {
+            prezzoMax = autosalone[i].prezzo;
+            idxMax = i;
+        }
+        if (autosalone[i].prezzo < prezzoMin) {
+            prezzoMin = autosalone[i].prezzo;
+            idxMin = i;
+        }
+    }
+
+    printf("\nAuto con prezzo più alto: %s (%.2f €)\n", autosalone[idxMax].modello, prezzoMax);
+    printf("Auto con prezzo più basso: %s (%.2f €)\n", autosalone[idxMin].modello, prezzoMin);
+
+    // 2) Ordinamento per anno immatricolazione (crescente)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (autosalone[i].anno_immatricolazione > autosalone[j].anno_immatricolazione) {
+                scambia(&autosalone[i], &autosalone[j]);
+            }
+        }
+    }
+
+    printf("\n--- AUTO ORDINATE PER ANNO DI IMMATRICOLAZIONE ---\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d - %s (%d)\n", i + 1, autosalone[i].modello, autosalone[i].anno_immatricolazione);
+    }
+
+    // 3) Visualizzare auto da un prezzo minimo scelto dall’utente
+    float prezzoScelto;
+    printf("\nInserisci un prezzo minimo: ");
+    scanf("%f", &prezzoScelto);
+
+    printf("\nAuto con prezzo >= %.2f:\n", prezzoScelto);
+    for (int i = 0; i < n; i++) {
+        if (autosalone[i].prezzo >= prezzoScelto)
+            printf("%s (%.2f €)\n", autosalone[i].modello, autosalone[i].prezzo);
+    }
+
+    // 4) Ricerca auto per targa
+    char targaCercata[20];
+    getchar(); // pulisce buffer
+    printf("\nInserisci la targa da cercare: ");
+    fgets(targaCercata, 20, stdin);
+    targaCercata[strcspn(targaCercata, "\n")] = 0;
+
+    int trovata = 0;
+    for (int i = 0; i < n; i++) {
+        if (strcmp(autosalone[i].targa, targaCercata) == 0) {
+            printf("\nAuto trovata!\n");
+            stampaDettagliAuto(autosalone[i]);
+            trovata = 1;
+            break;
+        }
+    }
+    if (!trovata)
+        printf("Nessuna auto trovata con targa %s.\n", targaCercata);
+
+    // 5) Media dei prezzi
+    float somma = 0;
+    for (int i = 0; i < n; i++) {
+        somma += autosalone[i].prezzo;
+    }
+    float media = somma / n;
+    printf("\nPrezzo medio delle auto: %.2f €\n", media);
+
+    // 6) Auto con anno di immatricolazione scelto dall’utente
+    int annoScelto;
+    printf("\nInserisci un anno di immatricolazione: ");
+    scanf("%d", &annoScelto);
+
+    printf("\nAuto immatricolate nel %d:\n", annoScelto);
+    int trovateAnno = 0;
+    for (int i = 0; i < n; i++) {
+        if (autosalone[i].anno_immatricolazione == annoScelto) {
+            stampaDettagliAuto(autosalone[i]);
+            trovateAnno = 1;
+        }
+    }
+    if (!trovateAnno)
+        printf("Nessuna auto trovata per l'anno %d.\n", annoScelto);
+
     return 0;
 }
-
- 
