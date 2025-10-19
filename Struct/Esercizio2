@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <string.h>
+
+#define N 5
+#define ANNO_ATTUALE 2025
+
+struct Persona {
+    char nome[30];
+    char cognome[30];
+    char codice_fiscale[20];
+    char citta[30];
+    int anno_nascita;
+    float reddito;
+    int eta; // calcolata automaticamente
+};
+
+int main() {
+    struct Persona p[N];
+    int i, j;
+
+    // --- INPUT DATI ---
+    for(i = 0; i < N; i++) {
+        printf("\n--- Inserisci dati persona %d ---\n", i + 1);
+        printf("Nome: ");
+        scanf("%s", p[i].nome);
+        printf("Cognome: ");
+        scanf("%s", p[i].cognome);
+        printf("Codice Fiscale: ");
+        scanf("%s", p[i].codice_fiscale);
+        printf("Citta: ");
+        scanf("%s", p[i].citta);
+        printf("Anno di nascita: ");
+        scanf("%d", &p[i].anno_nascita);
+        printf("Reddito annuo: ");
+        scanf("%f", &p[i].reddito);
+
+        p[i].eta = ANNO_ATTUALE - p[i].anno_nascita; // ETA AUTOMATICA ✅
+    }
+
+    // --- 1) Reddito max e min ---
+    int indice_max = 0, indice_min = 0;
+    for(i = 1; i < N; i++) {
+        if(p[i].reddito > p[indice_max].reddito)
+            indice_max = i;
+        if(p[i].reddito < p[indice_min].reddito)
+            indice_min = i;
+    }
+    printf("\nPersona con reddito piu ALTO: %s %s, %s, %.2f€\n",
+        p[indice_max].nome, p[indice_max].cognome, p[indice_max].citta, p[indice_max].reddito);
+    printf("Persona con reddito piu BASSO: %s %s, %s, %.2f€\n",
+        p[indice_min].nome, p[indice_min].cognome, p[indice_min].citta, p[indice_min].reddito);
+
+    // --- 2) Ordinamento per ANNO (dal più ANZIANO al più GIOVANE) ---
+    struct Persona temp;
+    for(i = 0; i < N - 1; i++) {
+        for(j = i + 1; j < N; j++) {
+            if(p[i].anno_nascita > p[j].anno_nascita) { // anno più piccolo = più anziano
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+    printf("\n--- Persone ordinate per anno di nascita (anziano -> giovane) ---\n");
+    for(i = 0; i < N; i++) {
+        printf("%s %s, nato nel %d (%d anni), %s, %.2f€\n",
+            p[i].nome, p[i].cognome, p[i].anno_nascita, p[i].eta, p[i].citta, p[i].reddito);
+    }
+
+    // --- 3) Ricerca per codice fiscale ---
+    char cf_ricerca[20];
+    printf("\nInserisci codice fiscale da cercare: ");
+    scanf("%s", cf_ricerca);
+    int trovato = 0;
+    for(i = 0; i < N; i++) {
+        if(strcmp(p[i].codice_fiscale, cf_ricerca) == 0) {
+            printf("Trovata: %s %s, %d anni, %s, %.2f€\n",
+                   p[i].nome, p[i].cognome, p[i].eta, p[i].citta, p[i].reddito);
+            trovato = 1;
+        }
+    }
+    if(!trovato)
+        printf("Nessuna persona trovata con questo codice fiscale.\n");
+
+    // --- 4) Persone con reddito >= X ---
+    float reddito_min;
+    printf("\nInserisci reddito minimo: ");
+    scanf("%f", &reddito_min);
+    printf("Persone con reddito >= %.2f:\n", reddito_min);
+    for(i = 0; i < N; i++) {
+        if(p[i].reddito >= reddito_min) {
+            printf("%s %s, %.2f€\n", p[i].nome, p[i].cognome, p[i].reddito);
+        }
+    }
+
+    // --- 5) Media redditi ---
+    float somma = 0;
+    for(i = 0; i < N; i++)
+        somma += p[i].reddito;
+    printf("\nMedia dei redditi: %.2f€\n", somma / N);
+
+    // --- 6) Persone nate in un anno specifico ---
+    int anno_scelto;
+    printf("\nInserisci anno di nascita da cercare: ");
+    scanf("%d", &anno_scelto);
+    printf("Persone nate nel %d:\n", anno_scelto);
+    for(i = 0; i < N; i++) {
+        if(p[i].anno_nascita == anno_scelto)
+            printf("%s %s (%d anni)\n", p[i].nome, p[i].cognome, p[i].eta);
+    }
+
+    // --- 7) Raggruppamento per città ---
+    printf("\n--- Raggruppamento per citta ---\n");
+    for(i = 0; i < N; i++) {
+        int conteggio = 0, somma_eta = 0;
+        int gia_stampata = 0;
+        for(j = 0; j < i; j++) {
+            if(strcmp(p[i].citta, p[j].citta) == 0) {
+                gia_stampata = 1;
+                break;
+            }
+        }
+        if(!gia_stampata) {
+            for(j = 0; j < N; j++) {
+                if(strcmp(p[i].citta, p[j].citta) == 0) {
+                    conteggio++;
+                    somma_eta += p[j].eta;
+                }
+            }
+            printf("%s → %d persone, età media %.1f anni\n", p[i].citta, conteggio, (float)somma_eta / conteggio);
+        }
+    }
+
+    return 0;
+}
