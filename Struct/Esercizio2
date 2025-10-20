@@ -41,7 +41,7 @@ int main() {
         printf("Reddito annuo: ");
         scanf("%f", &p[i].reddito);
 
-        p[i].eta = ANNO_ATTUALE - p[i].anno_nascita; // ETA AUTOMATICA ✅
+        p[i].eta = ANNO_ATTUALE - p[i].anno_nascita; // ETA AUTOMATICA
     }
 
     // --- 1) Reddito max e min ---
