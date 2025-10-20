@@ -1,3 +1,10 @@
+/**
+ * @brief
+ * @autor Nicolò Zanforlin 
+ * @param
+ * @return
+*/
+
 #include <stdio.h>
 #include <string.h>
 
